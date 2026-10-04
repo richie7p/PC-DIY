@@ -8,13 +8,14 @@ import { useBuildStore } from "@/lib/pc/store";
 
 export function BuilderApp() {
   const hydrate = useBuildStore((s) => s.hydrate);
+  const hydrated = useBuildStore((s) => s.hydrated);
 
   useEffect(() => {
     hydrate();
   }, [hydrate]);
 
   return (
-    <div className="flex min-h-dvh flex-col bg-bg text-fg lg:h-dvh lg:overflow-hidden">
+    <div inert={!hydrated} data-hydrated={hydrated} className="flex min-h-dvh flex-col bg-bg text-fg lg:h-dvh lg:overflow-hidden">
       <TopBar />
       <div className="flex flex-1 flex-col lg:grid lg:min-h-0 lg:grid-cols-[260px_minmax(0,1fr)_340px] lg:overflow-hidden">
         <SlotRail />

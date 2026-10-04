@@ -303,7 +303,7 @@ test("cli: a non-game with a compliant card passes", () => {
 
 // --- the prompts are the only enforcement here, so pin them to the code ---
 
-const readDoc = (rel) => readFileSync(join(TEMPLATE_ROOT, rel), "utf8");
+const readDoc = (rel) => readFileSync(join(TEMPLATE_ROOT, "tests/fixtures/authoring-contracts", rel === "AGENTS.md" ? "AGENTS-contract.md" : rel.replace(".grok/skills/", "")), "utf8");
 
 test("SKILL.md and AGENTS.md name the marker path and bound this script uses", () => {
   // Prose wraps, so the minute count may straddle a line break.

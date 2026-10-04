@@ -117,7 +117,7 @@ test("the CLI still runs when invoked through a symlinked path", async () => {
   // node realpaths import.meta.url but not process.argv[1], so a raw comparison
   // turns the wrapper into a no-op that exits 0 without starting anything.
   const link = join(mkdtempSync(join(tmpdir(), "app-env-link-")), "scripts");
-  symlinkSync(join(projectRoot(), "scripts"), link);
+  symlinkSync(join(projectRoot(), "scripts"), link, process.platform === "win32" ? "junction" : "dir");
   const { stdout } = await execFileAsync(process.execPath, [
     join(link, "with-app-env.mjs"),
     process.execPath,
@@ -125,4 +125,14 @@ test("the CLI still runs when invoked through a symlinked path", async () => {
     PRINT_FLAG,
   ]);
   assert.equal(stdout, "false");
+});
+
+test("committed defaults are overridden by workspace config", () => {
+  const root = makeWorkspace('{"VITE_AUTH_ENABLED":"true"}');
+  writeFileSync(join(root, "app-env.json"), '{"VITE_AUTH_ENABLED":"false","VITE_LABEL":"public"}');
+  assert.deepEqual(readAppEnv(root), { VITE_AUTH_ENABLED: "true", VITE_LABEL: "public" });
+});
+test("the wrapper starts the installed Vite CLI without a shell shim", async () => {
+  const { stdout } = await execFileAsync(process.execPath, [WRAPPER, "vite", "--version"]);
+  assert.match(stdout, /vite\/\d+/);
 });

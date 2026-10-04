@@ -96,9 +96,9 @@ src/components/builder/
 需要 **Node.js 22** 與 npm。
 
 ```bash
-git clone https://github.com/richie7p/rigforge.git
-cd rigforge
-npm install
+git clone https://github.com/richie7p/PC-DIY.git
+cd PC-DIY
+npm ci
 npm run dev
 ```
 
@@ -122,3 +122,8 @@ npm run preview     # 預覽建置結果
 ## 線上版本
 
 [https://urban-tulip-able-cliff.grok.me](https://urban-tulip-able-cliff.grok.me)
+
+
+## 技術稽核修正與測試
+
+[PDF 對照、重現步驟與驗證限制](docs/AUDIT-FOLLOWUP.md)
