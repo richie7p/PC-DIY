@@ -14,3 +14,7 @@ Scope: portfolio audit pages 23–24, reviewed 2026-10-04.
 Node 22 reproduction: `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm audit --audit-level=low`, `npm run build`, `npx playwright install chromium`, `npm run test:e2e`. Set `E2E_DEV=1` to exercise development mode. The CI matrix verifies clean installs and official builds on Windows/Ubuntu; Ubuntu runs both browser sizes.
 
 Tests validate this simulator's rules. Prices, relative performance, power and physical fit still need real-SKU manufacturer/retailer evidence before use as purchasing advice. Browser graphics/Grok extensions and third-party fonts depend on their hosts; no external deployment is changed by this PR.
+
+## Content and function acceptance update
+
+See [the 2026-10-04 acceptance record](CONTENT-FUNCTION-ACCEPTANCE.md) for the additional content review, fixes, regression cases and limits. Earlier counts above describe the audit baseline.

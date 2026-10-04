@@ -17,6 +17,7 @@ function samePicks(picks: Record<string, string | undefined>, presetPicks: Recor
 async function writeClipboard(text: string) {
   try {
     await navigator.clipboard.writeText(text);
+    return true;
   } catch {
     const el = document.createElement("textarea");
     el.value = text;
@@ -25,8 +26,13 @@ async function writeClipboard(text: string) {
     el.style.left = "-9999px";
     document.body.appendChild(el);
     el.select();
-    document.execCommand("copy");
-    el.remove();
+    try {
+      return document.execCommand("copy");
+    } catch {
+      return false;
+    } finally {
+      el.remove();
+    }
   }
 }
 
@@ -49,18 +55,29 @@ export function TopBar() {
   const analysis = analyze(picks, resolution);
   const over = analysis.totalUsd > budgetCap;
   const [copied, setCopied] = useState<"parts" | "link" | null>(null);
+  const [copyError, setCopyError] = useState(false);
   const floor = cheapestComplete();
   const shortBy = floor ? Math.max(0, floor.totalUsd - budgetCap) : 0;
   const underFloor = Boolean(floor && shortBy > 0);
 
   async function onCopy() {
-    await writeClipboard(buildPlaintext(picks, resolution));
+    setCopied(null);
+    setCopyError(false);
+    if (!(await writeClipboard(buildPlaintext(picks, resolution)))) {
+      setCopyError(true);
+      return;
+    }
     setCopied("parts");
     window.setTimeout(() => setCopied(null), 1600);
   }
 
   async function onShare() {
-    await writeClipboard(window.location.href);
+    setCopied(null);
+    setCopyError(false);
+    if (!(await writeClipboard(window.location.href))) {
+      setCopyError(true);
+      return;
+    }
     setCopied("link");
     window.setTimeout(() => setCopied(null), 1600);
   }
@@ -103,6 +120,12 @@ export function TopBar() {
           </Button>
         </div>
       </div>
+
+      {copyError ? (
+        <p role="alert" className="mt-2 text-sm text-fail">
+          瀏覽器未允許複製，請調整剪貼簿權限後重試。
+        </p>
+      ) : null}
 
       <div className="mt-3 flex flex-wrap items-end gap-3 sm:gap-4">
         <div className="min-w-0 flex-1 basis-full sm:basis-40">
