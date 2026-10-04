@@ -1,3 +1,4 @@
+import { normalizeBuild } from "./persistence";
 import { create } from "zustand";
 import { analyze, formatUsd } from "./analyze";
 import { autoBuild, cheapestComplete, type UseCase } from "./autobuild";
@@ -105,11 +106,11 @@ function readHash(): Persisted | null {
     const budgetRaw = Number(params.get("budget"));
     const resRaw = params.get("res");
     if (!any && !params.has("budget") && !params.has("res")) return null;
-    return {
+    return normalizeBuild({
       picks,
       budgetCap: Number.isFinite(budgetRaw) && budgetRaw > 0 ? budgetRaw : 1500,
       resolution: isResolution(resRaw) ? resRaw : "1440p",
-    };
+    });
   } catch {
     return null;
   }
@@ -135,6 +136,8 @@ export const useBuildStore = create<BuildState>((set, get) => ({
   setFamily: (family) => set({ family }),
   setCompatibleOnly: (compatibleOnly) => set({ compatibleOnly }),
   setBudgetCap: (budgetCap) => {
+    if (!Number.isFinite(budgetCap) || budgetCap <= 0) return;
+    budgetCap = normalizeBuild({ budgetCap }).budgetCap;
     const floor = cheapestComplete();
     const stillShort = Boolean(floor && budgetCap + 1 < floor.totalUsd);
     set({
@@ -270,7 +273,7 @@ export const useBuildStore = create<BuildState>((set, get) => ({
     try {
       const raw = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem("rigforge-v1");
       if (raw) {
-        const data = JSON.parse(raw) as Partial<Persisted> & { picks?: Picks };
+        const data = normalizeBuild(JSON.parse(raw));
         set({
           picks: data.picks ?? {},
           budgetCap: typeof data.budgetCap === "number" ? data.budgetCap : 1500,

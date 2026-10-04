@@ -18,3 +18,14 @@ AGENTS.project.md
 dist/
 build/
 .cache/
+
+playwright-report/
+test-results/
+
+.vercel/
+.output/
+.nitro/
+.tanstack/
+dist/
+.grok/preview.log
+.grok/status

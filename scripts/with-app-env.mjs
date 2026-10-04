@@ -20,6 +20,7 @@
  * `process.env`, which is why the merge has to happen before Vite starts.
  */
 import { spawn } from "node:child_process";
+import { createRequire } from "node:module";
 import { readFileSync, realpathSync } from "node:fs";
 import { constants as osConstants } from "node:os";
 import { dirname, join } from "node:path";
@@ -53,11 +54,20 @@ export function parseAppEnv(text) {
 
 /** The app env recorded under `root`, or `{}` when the file is absent. */
 export function readAppEnv(root) {
-  try {
-    return parseAppEnv(readFileSync(join(root, APP_ENV_REL_PATH), "utf8"));
-  } catch {
-    return {};
-  }
+  const read = (path) => {
+    try { return parseAppEnv(readFileSync(join(root, path), "utf8")); }
+    catch { return {}; }
+  };
+  // The committed defaults make fresh checkouts reproducible. A platform
+  // workspace override still wins; process environment wins in mergeAppEnv.
+  return { ...read("app-env.json"), ...read(APP_ENV_REL_PATH) };
+}
+
+export function resolveCommand(command, args) {
+  if (command !== "vite") return { executable: command, args };
+  const require = createRequire(import.meta.url);
+  const cli = join(dirname(require.resolve("vite/package.json")), "bin", "vite.js");
+  return { executable: process.execPath, args: [cli, ...args] };
 }
 
 /** File values under the process environment: an explicit override wins. */
@@ -111,7 +121,8 @@ function main(argv) {
     process.exit(2);
   }
   const env = mergeAppEnv(readAppEnv(projectRoot()), process.env);
-  const child = spawn(command, args, { stdio: "inherit", env });
+  const resolved = resolveCommand(command, args);
+  const child = spawn(resolved.executable, resolved.args, { stdio: "inherit", env });
   // The dev server is long-running and is stopped by signalling this wrapper.
   for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"]) {
     process.on(signal, () => child.kill(signal));

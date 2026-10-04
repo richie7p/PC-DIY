@@ -417,7 +417,7 @@ function shortResult(budget: number): AutoBuildShort | AutoBuildOk {
 }
 
 export function autoBuild(budget: number, useCase: UseCase, resolution: Resolution): AutoBuildResult {
-  const cap = Math.max(0, Math.round(budget));
+  const cap = Number.isFinite(budget) ? Math.max(0, Math.floor(budget)) : 0;
   const floor = cheapestComplete();
   if (floor && cap + 1 < floor.totalUsd) {
     return shortResult(cap);

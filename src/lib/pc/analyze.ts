@@ -607,7 +607,7 @@ function scoreBuild(parts: Resolved, checks: Check[], resolution: Resolution): S
 
   const cpuCreate = cpu?.creator ?? 20;
   const gpuCreate = gpu?.creator ?? 18;
-  let creation = cpuCreate * 0.4 + gpuCreate * 0.3 + ram * 0.2 + ssd * 0.1;
+  const creation = cpuCreate * 0.4 + gpuCreate * 0.3 + ram * 0.2 + ssd * 0.1;
 
   const single = cpu?.single ?? 20;
   const cores = cpu ? Math.min(100, 30 + cpu.cores * 3.2) : 20;
